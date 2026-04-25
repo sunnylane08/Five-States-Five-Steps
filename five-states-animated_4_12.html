@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Five States: How They Overlap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0b1120;
+    --bg2: #0e1628;
+    --surface: #131e30;
+    --coral: #e8613a;
+    --cream: #f0ebe3;
+    --muted: #7a8eaa;
+    --circle-stroke: rgba(240,235,227,0.72);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 1.5rem;
+    background: #f2ede8;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 100% 55% at 50% 0%, rgba(150,165,195,0.55) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 30% at 50% 100%, rgba(232,97,58,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.3s forwards;
+    position: relative; z-index: 1;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 13vw, 6.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #1c2340;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.5s forwards;
+    position: relative; z-index: 1;
+  }
+
+  .hero-title em { font-style: italic; color: var(--coral); }
+
+  .hero-sub {
+    margin-top: 1.4rem;
+    font-size: clamp(0.72rem, 3vw, 0.9rem);
+    font-weight: 300;
+    color: #8a8fa8;
+    letter-spacing: 0.04em;
+    line-height: 2;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.9s forwards;
+    position: relative; z-index: 1;
+  }
+
+  .hero-sub span { display: block; }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: max(1.8rem, env(safe-area-inset-bottom, 1.8rem));
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 1.5s forwards;
+    z-index: 1;
+  }
+
+  .scroll-cue span {
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #8a8fa8;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 38px;
+    background: linear-gradient(to bottom, var(--coral), transparent);
+    animation: scrollPulse 2s ease-in-out 2s infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.3; }
+    50%      { opacity: 1; }
+  }
+
+  /* ── DIAGRAM ── */
+  .diagram-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 0.25rem 3.5rem;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  }
+
+  .diagram-wrapper { width: min(560px, 99vw); }
+
+  .diagram-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .outer-ring {
+    fill: none;
+    stroke: rgba(232,97,58,0.18);
+    stroke-width: 0.8;
+    stroke-dasharray: 4 7;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+
+  .state-circle {
+    fill: rgba(11,17,32,0.01);
+    stroke: var(--circle-stroke);
+    stroke-width: 0.9;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .state-circle.draw {
+    stroke-dasharray: 1300;
+    stroke-dashoffset: 1300;
+    animation: drawIn 1.1s ease forwards;
+  }
+
+  @keyframes drawIn { to { stroke-dashoffset: 0; } }
+
+  .overlap-fill {
+    fill: var(--coral);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .center-circle {
+    fill: var(--surface);
+    stroke: var(--coral);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .state-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    fill: var(--cream);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .state-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    fill: rgba(240,235,227,0.58);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .center-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    fill: var(--coral);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .center-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    fill: rgba(240,235,227,0.48);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .integrated-label {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    fill: var(--coral);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .integrated-desc {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    fill: rgba(240,235,227,0.52);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    text-decoration: none;
+  }
+
+  /* ── CARDS ── */
+  .states-section {
+    padding: 2.5rem 1.25rem 1.5rem;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .states-intro {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .states-intro.revealed { opacity: 1; transform: none; }
+
+  .states-intro h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.5rem, 6vw, 2.4rem);
+    font-weight: 300;
+  }
+
+  .states-intro p {
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 300;
+    letter-spacing: 0.06em;
+  }
+
+  .state-card {
+    padding: 1.6rem 0 1.6rem 1rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .state-card.revealed { opacity: 1; transform: none; }
+
+  .state-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 1.6rem; bottom: 1.6rem;
+    width: 0;
+    background: var(--coral);
+    border-radius: 1px;
+    transition: width 0.35s ease 0.2s;
+  }
+
+  .state-card.revealed::before { width: 2px; }
+
+  .card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .card-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--coral);
+    opacity: 0.65;
+    flex-shrink: 0;
+  }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.55rem, 7vw, 2.1rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .card-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-left: 0.7rem;
+    border-left: 1.5px solid rgba(232,97,58,0.22);
+  }
+
+  .card-line {
+    font-size: clamp(0.8rem, 3.4vw, 0.875rem);
+    font-weight: 300;
+    color: rgba(240,235,227,0.62);
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateX(5px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .state-card.revealed .card-line:nth-child(1) { opacity:1; transform:none; transition-delay:0.1s; }
+  .state-card.revealed .card-line:nth-child(2) { opacity:1; transform:none; transition-delay:0.2s; }
+  .state-card.revealed .card-line:nth-child(3) { opacity:1; transform:none; transition-delay:0.3s; }
+
+  /* ── INTEGRATED FINAL CARD ── */
+  .integrated-card {
+    margin: 2rem -1.25rem 0;
+    padding: 3rem 2rem max(3rem, env(safe-area-inset-bottom, 3rem));
+    background: #060c17;
+    border-top: 1px solid rgba(232,97,58,0.2);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .integrated-card.revealed { opacity: 1; transform: none; }
+
+  .integrated-card .card-number {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--coral);
+    opacity: 0.65;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .integrated-card .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .integrated-card .card-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0;
+    border: none;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .integrated-card .card-line {
+    font-size: clamp(0.82rem, 3.4vw, 0.9rem);
+    font-weight: 300;
+    color: rgba(240,235,227,0.6);
+    line-height: 1.6;
+    padding: 0;
+    border: none;
+    transform: none;
+  }
+
+  .integrated-card.revealed .card-line:nth-child(1) { opacity:1; transform:none; transition-delay:0.15s; }
+  .integrated-card.revealed .card-line:nth-child(2) { opacity:1; transform:none; transition-delay:0.28s; }
+  .integrated-card.revealed .card-line:nth-child(3) { opacity:1; transform:none; transition-delay:0.41s; }
+
+  .integrated-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--coral);
+    opacity: 0.4;
+    margin: 1.5rem auto;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    padding: 2rem 1.5rem max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+    background: #060c17;
+    color: var(--muted);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .footer.revealed { opacity: 1; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── COMPARISON SECTION ── */
+  .comparison-section {
+    background: var(--bg);
+    padding: 5rem 1.25rem 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .comparison-intro {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .comparison-intro.revealed { opacity: 1; transform: none; }
+
+  .comparison-eyebrow {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 0.75rem;
+  }
+
+  .comparison-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 6vw, 2.6rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .comparison-sub {
+    font-size: clamp(0.82rem, 3.2vw, 0.92rem);
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* ── COMP CARDS ── */
+  .comp-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .comp-card {
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .comp-card.revealed { opacity: 1; transform: none; }
+
+  .comp-card-inner {
+    display: grid;
+    grid-template-columns: 1fr 2px 1fr;
+  }
+
+  .comp-col {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .comp-col-ah {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .comp-col-fs {
+    background: rgba(232,97,58,0.04);
+  }
+
+  .comp-divider {
+    background: rgba(255,255,255,0.07);
+    width: 1px;
+  }
+
+  .comp-col-label {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .comp-col-fs .comp-col-label {
+    color: var(--coral);
+    opacity: 0.7;
+  }
+
+  .comp-step {
+    font-size: 0.7rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  .comp-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 4.5vw, 1.5rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+
+  .comp-col-fs .comp-name {
+    color: var(--coral);
+  }
+
+  .comp-desc {
+    font-size: clamp(0.75rem, 2.8vw, 0.82rem);
+    font-weight: 300;
+    color: rgba(240,235,227,0.55);
+    line-height: 1.65;
+  }
+
+  /* ── OVERLAP DIAGRAMS ── */
+  .sidebyside-sub {
+    text-align: center;
+    font-size: clamp(0.78rem, 3vw, 0.875rem);
+    font-weight: 300;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+
+  .overlap-diagrams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .overlap-pair {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .overlap-pair.revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  .overlap-svg {
+    width: 100%;
+    max-width: 340px;
+    display: block;
+    margin: 0 auto;
+  }
+  .sidebyside-wrapper {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    margin-bottom: 3rem;
+  }
+
+  .sidebyside-wrapper.revealed { opacity: 1; transform: none; }
+
+  .sidebyside-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    font-weight: 300;
+    color: var(--cream);
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .sidebyside-table {
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .sbs-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .sbs-ah-head, .sbs-fs-head {
+    padding: 0.85rem 1rem;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .sbs-ah-head { color: var(--muted); border-right: 1px solid rgba(255,255,255,0.07); }
+  .sbs-fs-head { color: var(--coral); opacity: 0.8; }
+
+  .sbs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .sbs-row:last-of-type { border-bottom: none; }
+
+  .sbs-cell {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .sbs-ah { border-right: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.01); }
+  .sbs-fs { background: rgba(232,97,58,0.03); }
+
+  .sbs-step {
+    font-size: 0.65rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .sbs-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.2;
+  }
+
+  .sbs-fs .sbs-name { color: var(--coral); }
+
+  .sbs-tag {
+    font-size: clamp(0.65rem, 2.4vw, 0.72rem);
+    font-weight: 300;
+    color: rgba(240,235,227,0.4);
+    line-height: 1.4;
+    margin-top: 0.1rem;
+  }
+
+  .sbs-distinction {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border-top: 1px solid rgba(232,97,58,0.15);
+    background: rgba(232,97,58,0.04);
+  }
+
+  .sbs-distinction p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(240,235,227,0.6);
+    line-height: 1.8;
+  }
+
+  @media (min-width: 600px) {
+    .hero-sub span { display: inline; }
+    .hero-sub span + span::before { content: ' · '; opacity: 0.35; }
+    .integrated-card { margin: 2rem 0 0; border-radius: 4px; }
+  }
+
+  @media (max-width: 420px) {
+    .comp-col { padding: 1.1rem 0.85rem; }
+    .sbs-cell { padding: 0.75rem 0.6rem; }
+  }
+  /* ── TAP DIAGRAM SECTION ── */
+  .tap-section {
+    padding: 4rem 1.25rem 3rem;
+    max-width: 640px;
+    margin: 0 auto;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .tap-section.revealed { opacity: 1; transform: none; }
+
+  .tap-eyebrow {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 0.75rem;
+  }
+
+  .tap-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.6rem;
+  }
+
+  .tap-sub {
+    font-size: clamp(0.78rem, 3vw, 0.875rem);
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .tap-diagram-wrapper {
+    position: relative;
+  }
+
+  .tap-svg {
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .tap-circle {
+    cursor: pointer;
+  }
+
+  .tap-circle .tap-ring {
+    transition: stroke 0.3s ease, stroke-width 0.3s ease;
+  }
+
+  .tap-circle.active .tap-ring {
+    stroke: var(--coral);
+    stroke-width: 1.5;
+  }
+
+  .tap-hint {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    transition: opacity 0.4s ease;
+  }
+
+  .tap-reset {
+    display: block;
+    margin: 1rem auto 0;
+    background: none;
+    border: 1px solid rgba(232,97,58,0.3);
+    color: var(--coral);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.5rem 1.2rem;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .tap-reset:hover { background: rgba(232,97,58,0.08); border-color: var(--coral); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-eyebrow">A Framework for Human Consciousness</p>
+  <h1 class="hero-title">The Five <em>States</em></h1>
+  <p class="hero-sub">
+    <span>Awareness remains</span>
+    <span>Identity shifts</span>
+    <span>Experience continues</span>
+  </p>
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- DIAGRAM -->
+<!--
+  Layout plan (viewBox 0 0 460 560):
+  Center of diagram: (230, 265)
+  Circle radius: 100
+
+  SOURCE  top:    cx=230  cy=165  → label at y≈128 (inside top arc)
+  WITNESS left:   cx=136  cy=278  → label at cx=136, centered in circle
+  HEART   right:  cx=324  cy=278  → label at cx=324, centered in circle
+  FOUNDATION bot: cx=230  cy=345  → label at y≈385 (inside bottom arc)
+
+  Overlap ellipses at circle intersections.
+  Center experience circle at (230, 255) r=60.
+  INTEGRATED text below all circles.
+-->
+<section class="diagram-section" id="diagramSection">
+  <div class="diagram-wrapper">
+    <svg class="diagram-svg" viewBox="0 0 560 680" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- INTEGRATED label at top — well above ring -->
+      <text id="lblIntegratedRing" class="integrated-label" font-size="9" x="280" y="28" text-anchor="middle">INTEGRATED</text>
+      <text id="dIRing1" x="280" y="42" text-anchor="middle"
+        font-family="Outfit,sans-serif" font-size="7.5" font-weight="300"
+        fill="rgba(232,97,58,0.85)" opacity="0"
+        style="transition: opacity 0.5s ease;">Awareness holds the whole map</text>
+
+      <!-- Ring sits below the label: center cy=340, r=248 → top=92 (well below label at y=42) -->
+      <circle class="outer-ring" id="outerRing" cx="280" cy="340" r="248" style="stroke:var(--coral); stroke-dasharray:6 5;"/>
+
+      <!-- State circles positioned inside ring -->
+      <!-- SOURCE     cx=280 cy=213 -->
+      <!-- WITNESS    cx=162 cy=352 -->
+      <!-- HEART      cx=398 cy=352 -->
+      <!-- FOUNDATION cx=280 cy=435 -->
+      <circle id="circleSource"     class="state-circle" cx="280" cy="213" r="115"/>
+      <circle id="circleWitness"    class="state-circle" cx="162" cy="352" r="115"/>
+      <circle id="circleHeart"      class="state-circle" cx="398" cy="352" r="115"/>
+      <circle id="circleFoundation" class="state-circle" cx="280" cy="435" r="115"/>
+
+      <!-- Overlap ellipses -->
+      <!-- Overlap ellipses -->
+      <ellipse id="ovSW" class="overlap-fill" cx="222" cy="273" rx="12" ry="19" transform="rotate(-38 222 273)"/>
+      <ellipse id="ovSH" class="overlap-fill" cx="338" cy="273" rx="12" ry="19" transform="rotate(38 338 273)"/>
+      <ellipse id="ovWF" class="overlap-fill" cx="222" cy="374" rx="12" ry="19" transform="rotate(38 222 374)"/>
+      <ellipse id="ovHF" class="overlap-fill" cx="338" cy="374" rx="12" ry="19" transform="rotate(-38 338 374)"/>
+
+      <!-- Center circle -->
+      <circle id="centerCircle" class="center-circle" cx="280" cy="315" r="68"/>
+
+      <!-- ── SOURCE ── -->
+      <text id="lblSource" class="state-label" font-size="13" x="280" y="138" text-anchor="middle">Source</text>
+      <text id="dS1" class="state-desc" font-size="10" x="280" y="156" text-anchor="middle">Continuity detectable</text>
+      <text id="dS2" class="state-desc" font-size="10" x="280" y="170" text-anchor="middle">underneath experience.</text>
+      <text id="dS3" class="state-desc" font-size="10" x="280" y="184" text-anchor="middle">Awareness always here.</text>
+
+      <!-- ── WITNESS ── -->
+      <text id="lblWitness" class="state-label" font-size="13" x="162" y="300" text-anchor="middle">Witness</text>
+      <text id="dW1" class="state-desc" font-size="9.5" x="162" y="317" text-anchor="middle">Awareness beside</text>
+      <text id="dW2" class="state-desc" font-size="9.5" x="162" y="330" text-anchor="middle">experience.</text>
+      <text id="dW3" class="state-desc" font-size="9.5" x="162" y="343" text-anchor="middle">Identity no longer</text>
+      <text id="dW4" class="state-desc" font-size="9.5" x="162" y="356" text-anchor="middle">confined to it.</text>
+
+      <!-- ── HEART ── -->
+      <text id="lblHeart" class="state-label" font-size="13" x="398" y="300" text-anchor="middle">Heart</text>
+      <text id="dH1" class="state-desc" font-size="9.5" x="398" y="317" text-anchor="middle">Awareness remains</text>
+      <text id="dH2" class="state-desc" font-size="9.5" x="398" y="330" text-anchor="middle">beside experience</text>
+      <text id="dH3" class="state-desc" font-size="9.5" x="398" y="343" text-anchor="middle">under load.</text>
+      <text id="dH4" class="state-desc" font-size="9.5" x="398" y="356" text-anchor="middle">Dual awareness</text>
+      <text id="dH5" class="state-desc" font-size="9.5" x="398" y="369" text-anchor="middle">stabilizes.</text>
+
+      <!-- ── FOUNDATION ── -->
+      <text id="lblFoundation" class="state-label" font-size="13" x="280" y="452" text-anchor="middle">Foundation</text>
+      <text id="dF1" class="state-desc" font-size="10" x="280" y="469" text-anchor="middle">Identity inside experience.</text>
+      <text id="dF2" class="state-desc" font-size="10" x="280" y="483" text-anchor="middle">Circumstances all-consuming.</text>
+      <text id="dF3" class="state-desc" font-size="10" x="280" y="497" text-anchor="middle">Awareness can't keep up.</text>
+
+      <!-- ── CENTER ── -->
+      <text id="lblCenter" class="center-label" font-size="13" x="280" y="308" text-anchor="middle">Experience</text>
+      <text id="dC1" class="center-desc" font-size="9" x="280" y="323" text-anchor="middle">Thoughts, emotions,</text>
+      <text id="dC2" class="center-desc" font-size="9" x="280" y="335" text-anchor="middle">sensations, situations.</text>
+
+    </svg>
+  </div>
+</section>
+
+<!-- STATES DETAIL -->
+<section class="states-section">
+  <div class="states-intro" data-reveal>
+    <h2>Each state is navigable terrain</h2>
+    <p>Five locations. Always available.</p>
+  </div>
+
+  <div class="state-card" data-reveal>
+    <div class="card-header"><span class="card-number">01</span><h3 class="card-name">Foundation</h3></div>
+    <div class="card-lines">
+      <p class="card-line">Identity is inside the experience.</p>
+      <p class="card-line">Circumstances feel all-consuming.</p>
+      <p class="card-line">Awareness can't keep up.</p>
+    </div>
+  </div>
+
+  <div class="state-card" data-reveal>
+    <div class="card-header"><span class="card-number">02</span><h3 class="card-name">Source</h3></div>
+    <div class="card-lines">
+      <p class="card-line">Continuity detectable underneath experience.</p>
+      <p class="card-line">Awareness that was always here.</p>
+      <p class="card-line">Something remains before thought arises.</p>
+    </div>
+  </div>
+
+  <div class="state-card" data-reveal>
+    <div class="card-header"><span class="card-number">03</span><h3 class="card-name">Witness</h3></div>
+    <div class="card-lines">
+      <p class="card-line">Awareness beside experience.</p>
+      <p class="card-line">Identity is no longer confined to it.</p>
+      <p class="card-line">Dual awareness appears.</p>
+    </div>
+  </div>
+
+  <div class="state-card" data-reveal>
+    <div class="card-header"><span class="card-number">04</span><h3 class="card-name">Heart</h3></div>
+    <div class="card-lines">
+      <p class="card-line">Awareness remains beside experience under load.</p>
+      <p class="card-line">Dual awareness stabilizes.</p>
+      <p class="card-line">Presence holds even when it's hard.</p>
+    </div>
+  </div>
+
+  <!-- INTEGRATED — dark full-bleed card -->
+  <div class="integrated-card" data-reveal>
+    <span class="card-number">05</span>
+    <h3 class="card-name">Integrated</h3>
+    <div class="integrated-divider"></div>
+    <div class="card-lines">
+      <p class="card-line">Awareness remains continuous across changing states.</p>
+      <p class="card-line">Returning to Foundation isn't failure — awareness stays.</p>
+      <p class="card-line">The whole map becomes home.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- COMPARISON SECTION -->
+<section class="comparison-section">
+
+  <div class="comparison-intro" data-reveal>
+    <p class="comparison-eyebrow">In Conversation With</p>
+    <h2 class="comparison-title">Abraham Hicks &amp; The Five States</h2>
+    <p class="comparison-sub">Abraham Hicks identified a real sequence of inner movement. The Five States goes underneath it — naming the terrain each step moves through. One tells you what to do. The other shows you where you are.</p>
+  </div>
+
+  <!-- STATE BY STATE SLIDES -->
+  <div class="comp-cards-wrapper">
+
+    <div class="comp-card" data-reveal>
+      <div class="comp-card-inner">
+        <div class="comp-col comp-col-ah">
+          <p class="comp-col-label">Abraham Hicks</p>
+          <p class="comp-step">Step 1</p>
+          <h3 class="comp-name">You Ask</h3>
+          <p class="comp-desc">Experiencing contrast clarifies desire. The discomfort of what you don't want shows you what you do want. This is the necessary beginning.</p>
+        </div>
+        <div class="comp-divider"></div>
+        <div class="comp-col comp-col-fs">
+          <p class="comp-col-label">The Five States</p>
+          <p class="comp-step">State 01</p>
+          <h3 class="comp-name">Foundation</h3>
+          <p class="comp-desc">Not just a trigger — a complete state of consciousness. Identity is fused with experience. Circumstances feel all-consuming. You're not failing — you're in Foundation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card" data-reveal>
+      <div class="comp-card-inner">
+        <div class="comp-col comp-col-ah">
+          <p class="comp-col-label">Abraham Hicks</p>
+          <p class="comp-step">Step 2</p>
+          <h3 class="comp-name">The Universe Answers</h3>
+          <p class="comp-desc">The desire you clarified is received. Something external responds. This is not a step you actively do — it requires trust in a cosmological process.</p>
+        </div>
+        <div class="comp-divider"></div>
+        <div class="comp-col comp-col-fs">
+          <p class="comp-col-label">The Five States</p>
+          <p class="comp-step">State 02</p>
+          <h3 class="comp-name">Source</h3>
+          <p class="comp-desc">There is a quality of awareness underneath experience that was always there — detectable, not believed in. The internal noise stops. Awareness absent of thought.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card" data-reveal>
+      <div class="comp-card-inner">
+        <div class="comp-col comp-col-ah">
+          <p class="comp-col-label">Abraham Hicks</p>
+          <p class="comp-step">Step 3</p>
+          <h3 class="comp-name">Allowing</h3>
+          <p class="comp-desc">Step out of resistance so what you want can arrive. Get into the receiving mode. Let go of what's blocking the flow.</p>
+        </div>
+        <div class="comp-divider"></div>
+        <div class="comp-col comp-col-fs">
+          <p class="comp-col-label">The Five States</p>
+          <p class="comp-step">State 03</p>
+          <h3 class="comp-name">Witness</h3>
+          <p class="comp-desc">Awareness shifts from being inside the experience to standing beside it. That's not a metaphor — it's a detectable change. You didn't push resistance away. You changed your position relative to it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card" data-reveal>
+      <div class="comp-card-inner">
+        <div class="comp-col comp-col-ah">
+          <p class="comp-col-label">Abraham Hicks</p>
+          <p class="comp-step">Step 4</p>
+          <h3 class="comp-name">Mastery of Allowing</h3>
+          <p class="comp-desc">Hold alignment even when circumstances haven't shifted yet. Maintain the frequency of what's coming, not what's currently showing up.</p>
+        </div>
+        <div class="comp-divider"></div>
+        <div class="comp-col comp-col-fs">
+          <p class="comp-col-label">The Five States</p>
+          <p class="comp-step">State 04</p>
+          <h3 class="comp-name">Heart</h3>
+          <p class="comp-desc">Not willpower. Not positive thinking. Dual awareness that has stabilized under load — holding what is happening now and what is coming at the same time, without collapsing one into the other.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card" data-reveal>
+      <div class="comp-card-inner">
+        <div class="comp-col comp-col-ah">
+          <p class="comp-col-label">Abraham Hicks</p>
+          <p class="comp-step">Step 5</p>
+          <h3 class="comp-name">Embracing Contrast</h3>
+          <p class="comp-desc">Returning to contrast isn't regression — it's the process beginning again as a new desire forms. Your system expands through each cycle.</p>
+        </div>
+        <div class="comp-divider"></div>
+        <div class="comp-col comp-col-fs">
+          <p class="comp-col-label">The Five States</p>
+          <p class="comp-step">State 05</p>
+          <h3 class="comp-name">Integrated</h3>
+          <p class="comp-desc">Identity remains stable across all states. You don't transcend Foundation — you stop being afraid of it. The whole map becomes home. Awareness stays continuous, and from that stability, everything expands.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SIDE BY SIDE TABLE -->
+  <div class="sidebyside-wrapper" data-reveal>
+    <h3 class="sidebyside-title">Side by Side</h3>
+    <div class="sidebyside-table">
+      <div class="sbs-header">
+        <div class="sbs-cell sbs-ah-head">Abraham Hicks</div>
+        <div class="sbs-cell sbs-fs-head">The Five States</div>
+      </div>
+      <div class="sbs-row">
+        <div class="sbs-cell sbs-ah">
+          <span class="sbs-step">Step 1</span>
+          <span class="sbs-name">You Ask</span>
+          <span class="sbs-tag">A process trigger</span>
+        </div>
+        <div class="sbs-cell sbs-fs">
+          <span class="sbs-step">State 01</span>
+          <span class="sbs-name">Foundation</span>
+          <span class="sbs-tag">A complete state of consciousness</span>
+        </div>
+      </div>
+      <div class="sbs-row">
+        <div class="sbs-cell sbs-ah">
+          <span class="sbs-step">Step 2</span>
+          <span class="sbs-name">The Universe Answers</span>
+          <span class="sbs-tag">Cosmological — requires belief</span>
+        </div>
+        <div class="sbs-cell sbs-fs">
+          <span class="sbs-step">State 02</span>
+          <span class="sbs-name">Source</span>
+          <span class="sbs-tag">Empirical — available to notice</span>
+        </div>
+      </div>
+      <div class="sbs-row">
+        <div class="sbs-cell sbs-ah">
+          <span class="sbs-step">Step 3</span>
+          <span class="sbs-name">Allowing</span>
+          <span class="sbs-tag">Drop resistance</span>
+        </div>
+        <div class="sbs-cell sbs-fs">
+          <span class="sbs-step">State 03</span>
+          <span class="sbs-name">Witness</span>
+          <span class="sbs-tag">Change position relative to experience</span>
+        </div>
+      </div>
+      <div class="sbs-row">
+        <div class="sbs-cell sbs-ah">
+          <span class="sbs-step">Step 4</span>
+          <span class="sbs-name">Mastery of Allowing</span>
+          <span class="sbs-tag">Hold the frequency</span>
+        </div>
+        <div class="sbs-cell sbs-fs">
+          <span class="sbs-step">State 04</span>
+          <span class="sbs-name">Heart</span>
+          <span class="sbs-tag">Dual awareness stabilized under load</span>
+        </div>
+      </div>
+      <div class="sbs-row">
+        <div class="sbs-cell sbs-ah">
+          <span class="sbs-step">Step 5</span>
+          <span class="sbs-name">Embracing Contrast</span>
+          <span class="sbs-tag">Cycle begins again</span>
+        </div>
+        <div class="sbs-cell sbs-fs">
+          <span class="sbs-step">State 05</span>
+          <span class="sbs-name">Integrated</span>
+          <span class="sbs-tag">Identity stable across all states</span>
+        </div>
+      </div>
+  <!-- OVERLAPPING CIRCLES COMPARISON -->
+  <div class="sidebyside-wrapper" data-reveal>
+    <h3 class="sidebyside-title">Where They Overlap</h3>
+    <p class="sidebyside-sub">Each Abraham Hicks step lives inside a Five States terrain. The circle is already there — the step just moves through it.</p>
+
+    <div class="overlap-diagrams">
+
+      <!-- Row 1: Foundation / You Ask -->
+      <div class="overlap-pair">
+        <svg class="overlap-svg" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="55" r="48" fill="none" stroke="rgba(240,235,227,0.2)" stroke-width="1"/>
+          <circle cx="145" cy="55" r="48" fill="none" stroke="var(--coral)" stroke-width="1"/>
+          <!-- overlap fill -->
+          <ellipse cx="110" cy="55" rx="12" ry="28" fill="var(--coral)" opacity="0.12"/>
+          <text x="52" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(240,235,227,0.5)" text-transform="uppercase">STATE 01</text>
+          <text x="52" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="rgba(240,235,227,0.75)">Foundation</text>
+          <text x="168" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(232,97,58,0.7)">STEP 1</text>
+          <text x="168" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="var(--coral)">You Ask</text>
+          <text x="110" y="58" text-anchor="middle" font-family="Outfit,sans-serif" font-size="6.5" fill="rgba(240,235,227,0.35)">contrast</text>
+        </svg>
+      </div>
+
+      <!-- Row 2: Source / Universe Answers -->
+      <div class="overlap-pair">
+        <svg class="overlap-svg" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="55" r="48" fill="none" stroke="rgba(240,235,227,0.2)" stroke-width="1"/>
+          <circle cx="145" cy="55" r="48" fill="none" stroke="var(--coral)" stroke-width="1"/>
+          <ellipse cx="110" cy="55" rx="12" ry="28" fill="var(--coral)" opacity="0.12"/>
+          <text x="52" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(240,235,227,0.5)">STATE 02</text>
+          <text x="52" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="rgba(240,235,227,0.75)">Source</text>
+          <text x="168" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(232,97,58,0.7)">STEP 2</text>
+          <text x="168" y="59" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">The Universe</text>
+          <text x="168" y="71" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">Answers</text>
+          <text x="110" y="58" text-anchor="middle" font-family="Outfit,sans-serif" font-size="6.5" fill="rgba(240,235,227,0.35)">stillness</text>
+        </svg>
+      </div>
+
+      <!-- Row 3: Witness / Allowing -->
+      <div class="overlap-pair">
+        <svg class="overlap-svg" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="55" r="48" fill="none" stroke="rgba(240,235,227,0.2)" stroke-width="1"/>
+          <circle cx="145" cy="55" r="48" fill="none" stroke="var(--coral)" stroke-width="1"/>
+          <ellipse cx="110" cy="55" rx="12" ry="28" fill="var(--coral)" opacity="0.12"/>
+          <text x="52" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(240,235,227,0.5)">STATE 03</text>
+          <text x="52" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="rgba(240,235,227,0.75)">Witness</text>
+          <text x="168" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(232,97,58,0.7)">STEP 3</text>
+          <text x="168" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="var(--coral)">Allowing</text>
+          <text x="110" y="58" text-anchor="middle" font-family="Outfit,sans-serif" font-size="6.5" fill="rgba(240,235,227,0.35)">beside</text>
+        </svg>
+      </div>
+
+      <!-- Row 4: Heart / Mastery -->
+      <div class="overlap-pair">
+        <svg class="overlap-svg" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="55" r="48" fill="none" stroke="rgba(240,235,227,0.2)" stroke-width="1"/>
+          <circle cx="145" cy="55" r="48" fill="none" stroke="var(--coral)" stroke-width="1"/>
+          <ellipse cx="110" cy="55" rx="12" ry="28" fill="var(--coral)" opacity="0.12"/>
+          <text x="52" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(240,235,227,0.5)">STATE 04</text>
+          <text x="52" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="rgba(240,235,227,0.75)">Heart</text>
+          <text x="168" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(232,97,58,0.7)">STEP 4</text>
+          <text x="168" y="59" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">Mastery of</text>
+          <text x="168" y="71" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">Allowing</text>
+          <text x="110" y="58" text-anchor="middle" font-family="Outfit,sans-serif" font-size="6.5" fill="rgba(240,235,227,0.35)">stable</text>
+        </svg>
+      </div>
+
+      <!-- Row 5: Integrated / Embracing -->
+      <div class="overlap-pair">
+        <svg class="overlap-svg" viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="75" cy="55" r="48" fill="none" stroke="rgba(240,235,227,0.2)" stroke-width="1"/>
+          <circle cx="145" cy="55" r="48" fill="none" stroke="var(--coral)" stroke-width="1"/>
+          <ellipse cx="110" cy="55" rx="12" ry="28" fill="var(--coral)" opacity="0.12"/>
+          <text x="52" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(240,235,227,0.5)">STATE 05</text>
+          <text x="52" y="62" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="11" font-weight="300" fill="rgba(240,235,227,0.75)">Integrated</text>
+          <text x="168" y="48" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.08em" fill="rgba(232,97,58,0.7)">STEP 5</text>
+          <text x="168" y="59" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">Embracing</text>
+          <text x="168" y="71" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="9.5" font-weight="300" fill="var(--coral)">Contrast</text>
+          <text x="110" y="58" text-anchor="middle" font-family="Outfit,sans-serif" font-size="6.5" fill="rgba(240,235,227,0.35)">home</text>
+        </svg>
+      </div>
+
+    </div>
+
+    <div class="sbs-distinction">
+      <p><em>A process tells you where to go.</em></p>
+      <p><em>A map shows you where you already are.</em></p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- RING DIAGRAM -->
+<section class="tap-section" data-reveal>
+  <p class="tap-eyebrow">The Full Picture</p>
+  <h2 class="tap-title">One Map. Two Lenses.</h2>
+  <p class="tap-sub">The Five States as terrain. The Abraham Hicks steps as movement through it.</p>
+
+  <div class="tap-diagram-wrapper">
+    <!--
+      viewBox 0 0 700 820
+      Diagram center: (350, 390)
+      State circles r=108
+        SOURCE     cx=350 cy=278
+        WITNESS    cx=236 cy=403
+        HEART      cx=464 cy=403
+        FOUNDATION cx=350 cy=488
+
+      AH step labels orbit outside, connected by dashed lines:
+        Step 1 You Ask           → below FOUNDATION    → (350, 670)
+        Step 2 Universe Answers  → above SOURCE         → (350, 108)
+        Step 3 Allowing          → left of WITNESS      → (68,  440)
+        Step 4 Mastery Allowing  → right of HEART       → (632, 440)
+        Step 5 Embracing Contrast → bottom-right corner → (540, 650) with outer ellipse
+    -->
+    <svg class="tap-svg" viewBox="0 0 700 780" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Integrated glow gradient — coral, very soft -->
+        <radialGradient id="integratedGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="rgba(232,97,58,0)" />
+          <stop offset="85%"  stop-color="rgba(232,97,58,0)" />
+          <stop offset="100%" stop-color="rgba(232,97,58,0.09)" />
+        </radialGradient>
+      </defs>
+
+      <!--
+        Center of inner diagram: (350, 415)
+        State circle r=105
+          SOURCE     cx=350 cy=300
+          WITNESS    cx=233 cy=428
+          HEART      cx=467 cy=428
+          FOUNDATION cx=350 cy=510
+
+        INTEGRATED outer ring: r=245 centered on (350,415)
+          → spans from ~170 to ~530 horizontally, ~170 to ~660 vertically
+          → AH step labels orbit just outside this ring at r≈295
+
+        AH label positions at r≈295 from (350,415):
+          Step 2  top    angle 90°  → (350, 120)
+          Step 3  left   angle 195° → (65, 480)  adjusted for readability
+          Step 4  right  angle 345° → (635, 480)
+          Step 1  bottom angle 270° → (350, 710)
+      -->
+
+      <!-- ── INTEGRATED OUTER RING — the container ── -->
+      <circle cx="350" cy="415" r="268" fill="url(#integratedGlow)"/>
+      <circle cx="350" cy="415" r="268" fill="none" stroke="var(--coral)" stroke-width="1.4" stroke-dasharray="6 5" opacity="0.55"/>
+      <circle cx="350" cy="415" r="261" fill="none" stroke="var(--coral)" stroke-width="0.4" opacity="0.2"/>
+
+      <!-- INTEGRATED + STEP 5 — both at top of ring, inside arc -->
+      <text x="350" y="156" text-anchor="middle" font-family="Outfit,sans-serif" font-size="9" font-weight="600" letter-spacing="0.18em" fill="var(--coral)" opacity="0.9">INTEGRATED</text>
+      <text x="350" y="170" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7.5" font-weight="300" fill="rgba(232,97,58,0.55)">Awareness holds the whole map</text>
+      <text x="350" y="186" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.12em" fill="rgba(232,97,58,0.5)">STEP 5 · EMBRACING CONTRAST</text>
+
+      <!-- ── STATE CIRCLES with AH steps inside ── -->
+
+      <!-- SOURCE — Step 2 inside -->
+      <circle cx="350" cy="300" r="105" fill="rgba(11,17,32,0.5)" stroke="rgba(240,235,227,0.65)" stroke-width="0.9"/>
+      <text x="350" y="248" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.12em" fill="rgba(232,97,58,0.7)">STEP 2</text>
+      <text x="350" y="262" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="10" font-style="italic" font-weight="300" fill="var(--coral)">The Universe Answers</text>
+      <line x1="295" y1="270" x2="405" y2="270" stroke="rgba(232,97,58,0.2)" stroke-width="0.6"/>
+      <text x="350" y="282" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" font-weight="600" letter-spacing="0.1em" fill="var(--cream)">SOURCE</text>
+      <text x="350" y="299" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Continuity detectable</text>
+      <text x="350" y="312" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">underneath experience.</text>
+      <text x="350" y="325" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Awareness always here.</text>
+
+      <!-- WITNESS — Step 3 inside, cx moved inward to 255 -->
+      <circle cx="255" cy="428" r="105" fill="rgba(11,17,32,0.5)" stroke="rgba(240,235,227,0.65)" stroke-width="0.9"/>
+      <text x="255" y="378" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.12em" fill="rgba(232,97,58,0.7)">STEP 3</text>
+      <text x="255" y="392" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="10" font-style="italic" font-weight="300" fill="var(--coral)">Allowing</text>
+      <line x1="205" y1="399" x2="305" y2="399" stroke="rgba(232,97,58,0.2)" stroke-width="0.6"/>
+      <text x="255" y="412" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" font-weight="600" letter-spacing="0.1em" fill="var(--cream)">WITNESS</text>
+      <text x="255" y="429" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Awareness beside</text>
+      <text x="255" y="442" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">experience.</text>
+      <text x="255" y="455" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Dual awareness appears.</text>
+
+      <!-- HEART — Step 4 inside, cx moved inward to 445 -->
+      <circle cx="445" cy="428" r="105" fill="rgba(11,17,32,0.5)" stroke="rgba(240,235,227,0.65)" stroke-width="0.9"/>
+      <text x="445" y="378" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.12em" fill="rgba(232,97,58,0.7)">STEP 4</text>
+      <text x="445" y="392" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="10" font-style="italic" font-weight="300" fill="var(--coral)">Mastery of Allowing</text>
+      <line x1="395" y1="399" x2="495" y2="399" stroke="rgba(232,97,58,0.2)" stroke-width="0.6"/>
+      <text x="445" y="412" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" font-weight="600" letter-spacing="0.1em" fill="var(--cream)">HEART</text>
+      <text x="445" y="429" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Awareness remains</text>
+      <text x="445" y="442" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">beside experience</text>
+      <text x="445" y="455" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">under load.</text>
+
+      <!-- FOUNDATION — Step 1 inside, circle moved down to cy=535 -->
+      <circle cx="350" cy="535" r="105" fill="rgba(11,17,32,0.5)" stroke="rgba(240,235,227,0.65)" stroke-width="0.9"/>
+      <text x="350" y="488" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7" font-weight="600" letter-spacing="0.12em" fill="rgba(232,97,58,0.7)">STEP 1</text>
+      <text x="350" y="504" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="10" font-style="italic" font-weight="300" fill="var(--coral)">You Ask</text>
+      <line x1="295" y1="512" x2="405" y2="512" stroke="rgba(232,97,58,0.2)" stroke-width="0.6"/>
+      <text x="350" y="526" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" font-weight="600" letter-spacing="0.1em" fill="var(--cream)">FOUNDATION</text>
+      <text x="350" y="543" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Identity inside experience.</text>
+      <text x="350" y="556" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Circumstances all-consuming.</text>
+      <text x="350" y="569" text-anchor="middle" font-family="Outfit,sans-serif" font-size="8" font-weight="300" fill="rgba(240,235,227,0.5)">Awareness can't keep up.</text>
+
+      <!-- Overlap fills -->
+      <ellipse cx="303" cy="364" rx="10" ry="17" fill="var(--coral)" opacity="0.1" transform="rotate(-38 303 364)"/>
+      <ellipse cx="397" cy="364" rx="10" ry="17" fill="var(--coral)" opacity="0.1" transform="rotate(38 397 364)"/>
+      <ellipse cx="303" cy="482" rx="10" ry="17" fill="var(--coral)" opacity="0.1" transform="rotate(38 303 482)"/>
+      <ellipse cx="397" cy="482" rx="10" ry="17" fill="var(--coral)" opacity="0.1" transform="rotate(-38 397 482)"/>
+
+      <!-- CENTER EXPERIENCE -->
+      <circle cx="350" cy="408" r="62" fill="var(--surface)" stroke="var(--coral)" stroke-width="1"/>
+      <text x="350" y="401" text-anchor="middle" font-family="Cormorant Garamond,serif" font-size="12" font-weight="600" fill="var(--coral)" letter-spacing="0.08em">Experience</text>
+      <text x="350" y="416" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7.5" font-weight="300" fill="rgba(240,235,227,0.4)">Thoughts, emotions,</text>
+      <text x="350" y="428" text-anchor="middle" font-family="Outfit,sans-serif" font-size="7.5" font-weight="300" fill="rgba(240,235,227,0.4)">sensations, situations.</text>
+
+    </svg>
+  </div>
+</section>
+
+<footer class="footer" data-reveal>
+  The Last Human Skill &nbsp;·&nbsp; sunnymlane.com
+</footer>
+
+<script>
+  const diagramSection = document.getElementById('diagramSection');
+  let diagramDone = false;
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+
+  const els = {
+    ring:    document.getElementById('outerRing'),
+    circles: ['circleSource','circleWitness','circleHeart','circleFoundation'].map(id => document.getElementById(id)),
+    overlaps:['ovSW','ovSH','ovWF','ovHF'].map(id => document.getElementById(id)),
+    center:  document.getElementById('centerCircle'),
+    cLabel:  document.getElementById('lblCenter'),
+    cDescs:  ['dC1','dC2'].map(id => document.getElementById(id)),
+    sLabels: ['lblSource','lblWitness','lblHeart','lblFoundation'].map(id => document.getElementById(id)),
+    sDescs:  ['dS1','dS2','dS3','dW1','dW2','dW3','dW4','dH1','dH2','dH3','dH4','dH5','dF1','dF2','dF3'].map(id => document.getElementById(id)),
+    iLabel:  null,
+    iDescs:  [],
+    iRingLabel: document.getElementById('lblIntegratedRing'),
+    iRingDesc:  document.getElementById('dIRing1'),
+  };
+
+  async function animateDiagram() {
+    if (diagramDone) return;
+    diagramDone = true;
+    await wait(80);
+    els.ring.style.opacity = '1';
+    await wait(240);
+    for (const c of els.circles) {
+      c.style.opacity = '1';
+      c.classList.add('draw');
+      await wait(190);
+    }
+    await wait(160);
+    els.overlaps.forEach((o, i) => setTimeout(() => o.style.opacity = '0.15', i * 65));
+    await wait(300);
+    els.center.style.opacity = '1';
+    await wait(170);
+    els.cLabel.style.opacity = '1';
+    els.cDescs.forEach((d, i) => setTimeout(() => d.style.opacity = '1', 80 + i * 65));
+    await wait(260);
+    els.sLabels.forEach((l, i) => setTimeout(() => l.style.opacity = '1', i * 85));
+    await wait(360);
+    els.sDescs.forEach((d, i) => setTimeout(() => d.style.opacity = '1', i * 42));
+    await wait(480);
+    if (els.iLabel) els.iLabel.style.opacity = '1';
+    els.iDescs.forEach((d, i) => setTimeout(() => d.style.opacity = '1', 80 + i * 85));
+    if (els.iRingLabel) setTimeout(() => els.iRingLabel.style.opacity = '1', 200);
+    if (els.iRingDesc)  setTimeout(() => els.iRingDesc.style.opacity  = '1', 350);
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      if (entry.target === diagramSection) animateDiagram();
+      else if (entry.target.classList.contains('sidebyside-wrapper')) {
+        entry.target.classList.add('revealed');
+        const pairs = entry.target.querySelectorAll('.overlap-pair');
+        pairs.forEach((p, i) => setTimeout(() => p.classList.add('revealed'), i * 120));
+      }
+      else entry.target.classList.add('revealed');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.12 });
+
+  observer.observe(diagramSection);
+  document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
