@@ -4,7 +4,7 @@
 
 ---
 
-![The Five States interactive diagram — dark navy background with overlapping coral-outlined circles representing five states of consciousness](preview.png)
+<img width="663" height="611" alt="Screenshot 2026-05-09 at 7 33 08 PM" src="https://github.com/user-attachments/assets/da4504b0-351a-4ecb-9b7a-175af9e6f030" />
 
 ---
 
