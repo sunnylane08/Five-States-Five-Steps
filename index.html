@@ -785,6 +785,125 @@
   }
 
   .tap-reset:hover { background: rgba(232,97,58,0.08); border-color: var(--coral); }
+
+  /* ── STATE MODAL ── */
+  .state-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 12, 23, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 1.5rem;
+  }
+
+  .state-modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .state-modal {
+    background: var(--surface);
+    border: 1px solid rgba(232,97,58,0.25);
+    border-radius: 12px;
+    padding: 2.5rem 2rem 2rem;
+    max-width: 400px;
+    width: 100%;
+    position: relative;
+    transform: translateY(18px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    text-align: center;
+  }
+
+  .state-modal-overlay.open .state-modal {
+    transform: translateY(0) scale(1);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.2s ease;
+  }
+
+  .modal-close:hover { color: var(--cream); }
+
+  .modal-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--coral);
+    opacity: 0.65;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+  }
+
+  .modal-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    font-weight: 300;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-divider {
+    width: 28px;
+    height: 1px;
+    background: var(--coral);
+    opacity: 0.4;
+    margin: 0 auto 1.25rem;
+  }
+
+  .modal-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .modal-line {
+    font-size: clamp(0.82rem, 3.2vw, 0.9rem);
+    font-weight: 300;
+    color: rgba(240,235,227,0.65);
+    line-height: 1.6;
+  }
+
+  .modal-visual {
+    margin: 0.5rem auto 1.25rem;
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .modal-visual svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* clickable hit areas over diagram circles */
+  .diagram-hit {
+    cursor: pointer;
+    fill: transparent;
+  }
+
+  .diagram-hit:hover + .diagram-ring,
+  .diagram-hit:focus + .diagram-ring {
+    stroke: var(--coral);
+    stroke-width: 1.8;
+  }
 </style>
 </head>
 <body>
@@ -830,6 +949,9 @@
         fill="rgba(232,97,58,0.85)" opacity="0"
         style="transition: opacity 0.5s ease;">Awareness holds the whole map</text>
 
+      <!-- Integrated clickable hit area over label text -->
+      <rect x="160" y="15" width="240" height="38" class="diagram-hit" data-state="integrated" tabindex="0" role="button" aria-label="Open Integrated state" rx="4"/>
+
       <!-- Ring sits below the label: center cy=340, r=248 → top=92 (well below label at y=42) -->
       <circle class="outer-ring" id="outerRing" cx="280" cy="340" r="248" style="stroke:var(--coral); stroke-dasharray:6 5;"/>
 
@@ -842,6 +964,14 @@
       <circle id="circleWitness"    class="state-circle" cx="162" cy="352" r="115"/>
       <circle id="circleHeart"      class="state-circle" cx="398" cy="352" r="115"/>
       <circle id="circleFoundation" class="state-circle" cx="280" cy="435" r="115"/>
+
+      <!-- Clickable hit areas over each state circle -->
+      <circle class="diagram-hit" cx="280" cy="213" r="115" data-state="source"     tabindex="0" role="button" aria-label="Open Source state"/>
+      <circle class="diagram-hit" cx="162" cy="352" r="115" data-state="witness"    tabindex="0" role="button" aria-label="Open Witness state"/>
+      <circle class="diagram-hit" cx="398" cy="352" r="115" data-state="heart"      tabindex="0" role="button" aria-label="Open Heart state"/>
+      <circle class="diagram-hit" cx="280" cy="435" r="115" data-state="foundation" tabindex="0" role="button" aria-label="Open Foundation state"/>
+      <circle class="diagram-hit" cx="280" cy="340" r="248" data-state="integrated" tabindex="0" role="button" aria-label="Open Integrated state"
+              style="pointer-events: none;"/>
 
       <!-- Overlap ellipses -->
       <!-- Overlap ellipses -->
@@ -1335,7 +1465,215 @@
   The Last Human Skill &nbsp;·&nbsp; sunnymlane.com
 </footer>
 
+<!-- STATE MODAL -->
+<div class="state-modal-overlay" id="stateModal" role="dialog" aria-modal="true" aria-labelledby="modalName">
+  <div class="state-modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">&#x2715;</button>
+    <div class="modal-number" id="modalNumber"></div>
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-visual" id="modalVisual"></div>
+    <div class="modal-divider"></div>
+    <div class="modal-lines" id="modalLines"></div>
+  </div>
+</div>
+
 <script>
+  /* ── STATE DATA ── */
+  const C = {
+    coral:   '#e8613a',
+    cream:   '#f0ebe3',
+    muted:   'rgba(240,235,227,0.38)',
+    ring:    'rgba(240,235,227,0.55)',
+    exp:     '#131e30',    // surface / experience fill
+    bg:      '#0b1120',
+  };
+
+  /* SVG helpers */
+  const svg = (w, h, content) =>
+    `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${content}</svg>`;
+
+  const circle = (cx, cy, r, fill, stroke, sw=1, opacity=1, dash='') =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" opacity="${opacity}" ${dash ? `stroke-dasharray="${dash}"` : ''}/>`;
+
+  const label = (x, y, text, fill, size=9, weight=600, anchor='middle', ls='0.12em') =>
+    `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Outfit,sans-serif" font-size="${size}" font-weight="${weight}" letter-spacing="${ls}" fill="${fill}">${text}</text>`;
+
+  const dot = (cx, cy, r=5) =>
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${C.cream}" opacity="0.9"/>`;
+
+  /* ── Per-state SVG visuals ── */
+  const visuals = {
+
+    // FOUNDATION: identity fused inside experience — experience circle dominates,
+    // awareness ring barely visible at edge, dot trapped inside
+    foundation: svg(220, 160,
+      // faint outer awareness ring barely peeking
+      circle(110, 88, 62, 'none', C.ring, 0.7, 0.25) +
+      // large experience circle — dominant
+      circle(110, 88, 52, `rgba(232,97,58,0.18)`, C.coral, 1.2, 0.9) +
+      // dot deep inside experience — no separation
+      dot(110, 88, 5) +
+      label(110, 148, 'IDENTITY INSIDE EXPERIENCE', C.muted, 7, 400, 'middle', '0.08em')
+    ),
+
+    // SOURCE: glowing awareness underneath — large soft glow behind,
+    // experience circle in front, awareness dot floating separately below
+    source: svg(220, 160,
+      // glow / awareness underneath
+      `<radialGradient id="srcGlow" cx="50%" cy="60%" r="50%">
+        <stop offset="0%" stop-color="rgba(232,97,58,0.22)"/>
+        <stop offset="100%" stop-color="rgba(232,97,58,0)"/>
+      </radialGradient>` +
+      `<ellipse cx="110" cy="100" rx="72" ry="50" fill="url(#srcGlow)"/>` +
+      // experience circle
+      circle(110, 72, 48, `rgba(232,97,58,0.14)`, C.coral, 1, 0.85) +
+      // awareness dot — outside, underneath (below experience)
+      dot(110, 128, 5) +
+      label(110, 148, 'CONTINUITY UNDERNEATH', C.muted, 7, 400, 'middle', '0.08em')
+    ),
+
+    // WITNESS: two circles side by side, overlapping slightly
+    // awareness dot sits clearly in the left (awareness) circle, separate from experience
+    witness: svg(220, 160,
+      // awareness circle — left
+      circle(78, 76, 50, `rgba(240,235,227,0.06)`, C.ring, 1, 0.85) +
+      // experience circle — right (coral)
+      circle(142, 76, 50, `rgba(232,97,58,0.15)`, C.coral, 1, 0.85) +
+      // overlap tint
+      `<ellipse cx="110" cy="76" rx="10" ry="22" fill="${C.coral}" opacity="0.08"/>` +
+      // awareness dot — clearly in the awareness circle, beside experience
+      dot(62, 76, 5) +
+      label(78, 138, 'AWARENESS', C.muted, 6.5, 400, 'middle', '0.08em') +
+      label(142, 138, 'EXPERIENCE', C.muted, 6.5, 400, 'middle', '0.08em') +
+      label(110, 152, 'BESIDE, NOT INSIDE', C.muted, 7, 400, 'middle', '0.08em')
+    ),
+
+    // HEART: same two-circle layout as Witness, but with pressure arrows
+    // coming from the left — awareness dot holds its position
+    heart: svg(220, 160,
+      // pressure arrows coming from left
+      `<g stroke="${C.coral}" stroke-width="1.2" opacity="0.55">
+        <line x1="8" y1="56" x2="26" y2="56"/><polygon points="26,52 34,56 26,60" fill="${C.coral}" opacity="0.55"/>
+        <line x1="4" y1="70" x2="22" y2="70"/><polygon points="22,66 30,70 22,74" fill="${C.coral}" opacity="0.55"/>
+        <line x1="8" y1="84" x2="26" y2="84"/><polygon points="26,80 34,84 26,88" fill="${C.coral}" opacity="0.55"/>
+        <line x1="4" y1="98" x2="22" y2="98"/><polygon points="22,94 30,98 22,102" fill="${C.coral}" opacity="0.55"/>
+      </g>` +
+      // awareness circle — left
+      circle(84, 76, 46, `rgba(240,235,227,0.06)`, C.ring, 1, 0.85) +
+      // experience circle — right (coral)
+      circle(144, 76, 46, `rgba(232,97,58,0.15)`, C.coral, 1, 0.85) +
+      // overlap tint
+      `<ellipse cx="114" cy="76" rx="9" ry="20" fill="${C.coral}" opacity="0.08"/>` +
+      // awareness dot — holding steady in awareness circle
+      dot(70, 76, 5) +
+      label(110, 138, 'DUAL AWARENESS UNDER LOAD', C.muted, 7, 400, 'middle', '0.08em')
+    ),
+
+    // INTEGRATED: large outer awareness ring contains everything,
+    // small experience circle nested inside — awareness continuous
+    integrated: svg(220, 165,
+      // outer awareness ring — large, dashed coral
+      circle(110, 82, 72, `rgba(232,97,58,0.06)`, C.coral, 1.2, 0.7, '5 4') +
+      // inner awareness fill
+      circle(110, 82, 70, `rgba(232,97,58,0.04)`, 'none', 0) +
+      // experience circle — small, centered inside
+      circle(110, 82, 32, `rgba(232,97,58,0.2)`, C.coral, 1, 0.7) +
+      // awareness dot — floating in the large outer ring
+      dot(110, 30, 4) +
+      label(110, 160, 'AWARENESS HOLDS THE WHOLE MAP', C.muted, 7, 400, 'middle', '0.07em')
+    ),
+  };
+
+  const stateData = {
+    source: {
+      number: '02',
+      name: 'Source',
+      visual: visuals.source,
+      lines: [
+        'Continuity detectable underneath experience.',
+        'Awareness that was always here.',
+        'Something remains before thought arises.'
+      ]
+    },
+    witness: {
+      number: '03',
+      name: 'Witness',
+      visual: visuals.witness,
+      lines: [
+        'Awareness beside experience.',
+        'Identity is no longer confined to it.',
+        'Dual awareness appears.'
+      ]
+    },
+    heart: {
+      number: '04',
+      name: 'Heart',
+      visual: visuals.heart,
+      lines: [
+        'Awareness remains beside experience under load.',
+        'Dual awareness stabilizes.',
+        'Presence holds even when it\'s hard.'
+      ]
+    },
+    foundation: {
+      number: '01',
+      name: 'Foundation',
+      visual: visuals.foundation,
+      lines: [
+        'Identity is inside the experience.',
+        'Circumstances feel all-consuming.',
+        'Awareness can\'t keep up.'
+      ]
+    },
+    integrated: {
+      number: '05',
+      name: 'Integrated',
+      visual: visuals.integrated,
+      lines: [
+        'Awareness remains continuous across changing states.',
+        'Returning to Foundation isn\'t failure — awareness stays.',
+        'The whole map becomes home.'
+      ]
+    }
+  };
+
+  /* ── MODAL LOGIC ── */
+  const overlay  = document.getElementById('stateModal');
+  const modalNum = document.getElementById('modalNumber');
+  const modalNm  = document.getElementById('modalName');
+  const modalLns = document.getElementById('modalLines');
+
+  function openModal(stateKey) {
+    const d = stateData[stateKey];
+    if (!d) return;
+    modalNum.textContent       = d.number;
+    modalNm.textContent        = d.name;
+    document.getElementById('modalVisual').innerHTML = d.visual || '';
+    modalLns.innerHTML         = d.lines.map(l => `<div class="modal-line">${l}</div>`).join('');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* attach to diagram hit areas */
+  document.querySelectorAll('.diagram-hit').forEach(el => {
+    el.addEventListener('click', () => openModal(el.dataset.state));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(el.dataset.state); }
+    });
+    /* hover highlight: brighten the nearest named circle */
+    el.addEventListener('mouseenter', () => el.style.fill = 'rgba(232,97,58,0.06)');
+    el.addEventListener('mouseleave', () => el.style.fill = 'transparent');
+  });
+
   const diagramSection = document.getElementById('diagramSection');
   let diagramDone = false;
   const wait = ms => new Promise(r => setTimeout(r, ms));
